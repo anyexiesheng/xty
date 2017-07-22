@@ -22,7 +22,7 @@ class ArticleCategory extends ActiveRecord{
     public function rules()
     {
         return [
-            [['intro','sort','name','status'],'required','message'=>'{attribute}必填'],
+            [['intro','sort','name'],'required','message'=>'{attribute}必填'],
             [['intro'], 'string'],
             [['sort', 'status'], 'integer'],
             [['name'], 'string', 'max' => 50],
