@@ -8,7 +8,7 @@
     </div>
 </form>
 <?=\yii\bootstrap\Html::a('添加',['goods-category/add'],['class'=>'btn btn-sm btn-success'])?>
-<table class="table table-bordered">
+<table class="table table-bordered"style="text-align: center">
     <tr>
         <td>ID</td>
         <td>名称</td>

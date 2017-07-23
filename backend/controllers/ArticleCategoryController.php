@@ -3,6 +3,7 @@
 namespace backend\controllers;
 use yii\data\Pagination;
 use backend\models\ArticleCategory;
+use yii\web\NotFoundHttpException;
 use yii\web\Request;
 class ArticleCategoryController extends \yii\web\Controller
 {
@@ -53,6 +54,9 @@ class ArticleCategoryController extends \yii\web\Controller
     public function actionEdit($id){
         //实例化一个对象用来保存数据
         $model=ArticleCategory::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该文章分类不存在');
+        }
         $request=new Request();
         if ($request->isPost) {
             $model->load($request->post());
@@ -76,6 +80,9 @@ class ArticleCategoryController extends \yii\web\Controller
     {
         //根据id从数据库删除一条数据
         $model=ArticleCategory::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该文章分类不存在');
+        }
         //将状态修改为删除
         $model->status=-1;
         //保存状态到数据库
@@ -104,7 +111,11 @@ class ArticleCategoryController extends \yii\web\Controller
     }
     public function actionClean($id){
     //根据id从数据库清除一条数据
-        ArticleCategory::deleteAll(['id'=>$id]);
+        $model=ArticleCategory::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该文章分类不存在');
+        }
+        $model->delete();
         //清除成功保存提示信息到session中然后跳转首页
         \Yii::$app->session->setFlash('success','清除成功');
         return $this->redirect(['article-category/back']);
@@ -112,6 +123,9 @@ class ArticleCategoryController extends \yii\web\Controller
     public function actionRecover($id){
     //根据id从回收恢复一条数据
         $model=ArticleCategory::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该文章分类不存在');
+        }
         //将状态修改为显示
         $model->status=1;
         //保存状态到数据库

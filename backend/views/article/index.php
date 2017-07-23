@@ -12,7 +12,7 @@
 
 <?=\yii\bootstrap\Html::a('添加',['article/add'],['class'=>'btn btn-sm btn-success'])?>
 <?=\yii\bootstrap\Html::a('回收站',['article/back'],['class'=>'btn btn-sm btn-info'])?>
-<table class="table table-bordered">
+<table class="table table-bordered"style="text-align: center">
     <tr>
         <td>ID</td>
         <td>名称</td>

@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 use yii\data\Pagination;
+use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
 use backend\models\Brand;
 use yii\web\Request;
@@ -55,6 +56,9 @@ class BrandController extends \yii\web\Controller
     public function actionEdit($id){
         //实例化一个对象用来保存数据
         $brand=Brand::findOne(['id'=>$id]);
+        if($brand==null){
+            throw new NotFoundHttpException('该品牌不存在');
+        }
         $request=new Request();
         if ($request->isPost) {
             $brand->load($request->post());
@@ -85,6 +89,7 @@ class BrandController extends \yii\web\Controller
         }
         return $this->redirect(['brand/index']);
     }
+    //上传图片到七牛云and文本编辑器
     public function actions() {
         return [
             's-upload' => [
@@ -169,7 +174,11 @@ class BrandController extends \yii\web\Controller
     }
     public function actionClean($id){
         //根据id从数据库清除一条数据
-        Brand::deleteAll(['id'=>$id]);
+        $brand=Brand::findOne(['id'=>$id]);
+        if($brand==null){
+            throw new NotFoundHttpException('该品牌不存在');
+        }
+        $brand->delete();
         //添加成功保存提示信息到session中然后跳转首页
         \Yii::$app->session->setFlash('danger','清除成功');
         return $this->redirect(['brand/back']);
@@ -177,6 +186,9 @@ class BrandController extends \yii\web\Controller
     public function actionRecover($id){
         //根据id从回收恢复一条数据
         $model=Brand::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该品牌不存在');
+        }
         //将状态修改为显示
         $model->status=1;
         //保存状态到数据库

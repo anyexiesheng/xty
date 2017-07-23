@@ -4,6 +4,7 @@ namespace backend\controllers;
 
 use backend\models\AricleDetail;
 use backend\models\Article;
+use yii\web\NotFoundHttpException;
 use yii\web\Request;
 use yii\data\Pagination;
 class ArticleController extends \yii\web\Controller
@@ -82,6 +83,9 @@ class ArticleController extends \yii\web\Controller
     public function actionEdit($id){
         //实例化一个文章对象
         $article =Article::findOne(['id'=>$id]);
+        if($article==null){
+            throw new NotFoundHttpException('该文章不存在');
+        }
         //实例化一个文章内容对象
         $article_detail =AricleDetail::findOne(['article_id'=>$id]);
         //实例化一个请求方式对象
@@ -115,7 +119,10 @@ class ArticleController extends \yii\web\Controller
     //逻辑删除
     public function actionDelete($id){
         //根据id从文章数据表中获取一条数据
-        $model=Article::findOne(['id'=>$id]);
+        $model =Article::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该文章不存在');
+        }
         //修改状态为删除
         $model->status=-1;
         //保存
@@ -144,15 +151,21 @@ class ArticleController extends \yii\web\Controller
     }
     public function actionClean($id){
         //根据id从数据库清除一条数据
-        Article::deleteAll(['id'=>$id]);
-        AricleDetail::deleteAll(['article_id'=>$id]);
+        $model =Article::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该文章不存在');
+        }
+        $model->delete();
         //删除成功保存提示信息到session中然后跳转首页
         \Yii::$app->session->setFlash('success','清除成功');
         return $this->redirect(['article/back']);
     }
     public function actionRecover($id){
         //根据id从回收恢复一条数据
-        $model=Article::findOne(['id'=>$id]);
+        $model =Article::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该文章不存在');
+        }
         //将状态修改为显示
         $model->status=1;
         //保存状态到数据库
