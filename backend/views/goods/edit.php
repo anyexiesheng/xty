@@ -21,14 +21,14 @@ echo $form->field($good,'logo')->hiddenInput();
 //外部TAG
 echo \yii\bootstrap\Html::fileInput('test', NULL, ['id' => 'test']);
 echo \flyok666\uploadifive\Uploadifive::widget([
-    'url' => yii\helpers\Url::to(['brand/s-upload']),
+    'url' => yii\helpers\Url::to(['s-upload']),
     'id' => 'test',
     'csrf' => true,
     'renderTag' => false,
     'jsOptions' => [
         'formData'=>['someKey' => 'someValue'],
-        'width' => 120,
-        'height' => 40,
+        'width' => 80,
+        'height' => 30,
         'onError' => new JsExpression(<<<EOF
 function(file, errorCode, errorMsg, errorString) {
     console.log('The file ' + file.name + ' could not be uploaded: ' + errorString + errorCode + errorMsg);
@@ -53,7 +53,6 @@ EOF
         ),
     ]
 ]);
-
 
 //文本编辑器
 echo $form->field($goods_intro,'content')->widget(UEditor::className(),[

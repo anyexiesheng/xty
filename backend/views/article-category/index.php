@@ -2,12 +2,12 @@
 <?=\yii\bootstrap\Html::a('回收站',['article-category/back'],['class'=>'btn btn-sm btn-info'])?>
 <table class="table table-bordered"style="text-align: center">
     <tr>
-        <td>ID</td>
-        <td>名称</td>
-        <td>排序</td>
-        <td>状态</td>
-        <td>简介</td>
-        <td>操作</td>
+        <th>ID</th>
+        <th>名称</th>
+        <th>排序</th>
+        <th>状态</th>
+        <th>简介</th>
+        <th>操作</th>
     </tr>
     <?php foreach ($models as $model):?>
     <tr>

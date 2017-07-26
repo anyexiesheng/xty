@@ -16,16 +16,12 @@ class ArticleController extends \yii\web\Controller
         $request=new Request();
 
         //分页  总条数  每页显示条数 当前页
-        $query=Article::find();
+        $query=Article::find()->where(['!=','status','-1']);
         //总条数
-        if($request->isPost){
-            //搜索功能
-            $keyword=$request->post('sou');
-            $total=$query->where(['!=','status','-1'])->andWhere(['like','name',$keyword])->orderBy('sort desc')->count();
-        }else{
-            $total=$query->where(['!=','status','-1'])->orderBy('sort desc')->count();
+        if($request->get('sou')){
+            $query->andWhere(['like','name',$request->get('sou')]);
         }
-
+        $total=$query->orderBy('sort desc')->count();
         //每页显示条数
         $pageSize=3;
         //分页工具类

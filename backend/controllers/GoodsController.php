@@ -16,12 +16,30 @@ class GoodsController extends \yii\web\Controller
 {
     public function actionIndex()
     {
+        $request=new Request();
         //分页  总条数  每页显示条数 当前页
-        $query=Goods::find();
+        $query=Goods::find()->where(['!=','status','0']);
+        //#############搜索条件########################
+
+            if($request->get('sn')){
+                $query->andWhere(['like','sn',$request->get('sn')]);
+            }
+            if($request->get('name')){
+                $query->andWhere(['like','name',$request->get('name')]);
+            }
+            if($request->get('price1')){
+                $query->andWhere(['>=','shop_price',$request->get('price1')]);
+            }
+            if($request->get('price2')){
+                $query->andWhere(['<=','shop_price',$request->get('price2')]);
+            }
+
+
+        //#######################################################
         //总条数
-        $total=$query->where(['!=','status','0'])->orderBy('sort desc')->count();
+        $total=$query->orderBy('sort desc')->count();
         //每页显示条数
-        $pageSize=8;
+        $pageSize=6;
         //分页工具类
         $pager=new Pagination([
             'totalCount'=>$total,
@@ -37,7 +55,6 @@ class GoodsController extends \yii\web\Controller
         $time=date('Ymd');
         $good=new Goods();
         $goods_intro=new GoodsIntro();
-        $goods_gallery=new GoodsGallery();
         $request=new Request();
         if($request->isPost){
             $good_day_count = GoodsDayCount::findOne(['day' => $time]);
@@ -65,10 +82,6 @@ class GoodsController extends \yii\web\Controller
             //更新每天的商品添加数
              $good_day_count->count=($good_day_count->count)+1;
              $good_day_count->save();
-            //保存图片和图片地址到图片表
-             $goods_gallery->goods_id=$good->id;
-             $goods_gallery->path=$good->logo;
-             $goods_gallery->save();
             //判断并保存商品详情
             if($goods_intro->load($request->post()) && $goods_intro->validate()){
                 $goods_intro->goods_id=$good->id;
@@ -89,7 +102,6 @@ class GoodsController extends \yii\web\Controller
     public function actionEdit($id){
         $good=Goods::findOne(['id'=>$id]);
         $goods_intro=GoodsIntro::findOne(['goods_id'=>$id]);
-        $goods_gallery=GoodsGallery::findOne(['goods_id'=>$id]);
         if($good==null){
             throw new NotFoundHttpException('该商品不存在');
         }
@@ -103,9 +115,6 @@ class GoodsController extends \yii\web\Controller
                 //验证失败 打印错误信息
                 var_dump($good->getErrors());exit;
             }
-            //保存图片和图片地址到图片表
-            $goods_gallery->path=$good->logo;
-            $goods_gallery->save();
             //判断并保存商品详情
             if($goods_intro->load($request->post()) && $goods_intro->validate()){
                 $goods_intro->save();
@@ -133,6 +142,43 @@ class GoodsController extends \yii\web\Controller
         \Yii::$app->session->setFlash('danger','删除成功');
         return $this->redirect(['goods/index']);
     }
+    //商品详情
+    public function actionContent($id){
+        $model=Goods::findOne(['id'=>$id]);
+        if($model==null){
+            throw new NotFoundHttpException('该商品不存在');
+        }
+        return $this->render('content',['model'=>$model]);
+    }
+    /*
+     * 商品相册
+     */
+    public function actionGallery($id)
+    {
+        $goods = Goods::findOne(['id'=>$id]);
+        if($goods == null){
+            throw new NotFoundHttpException('商品不存在');
+        }
+
+
+        return $this->render('gallery',['goods'=>$goods]);
+
+    }
+
+    /*
+     * AJAX删除图片
+     */
+    public function actionDelGallery(){
+        $id = \Yii::$app->request->post('id');
+        $model = GoodsGallery::findOne(['id'=>$id]);
+        if($model && $model->delete()){
+            return 'success';
+        }else{
+            return 'fail';
+        }
+
+    }
+
     //回收站#############################################################
     public function actionBack(){
         //分页  总条数  每页显示条数 当前页
@@ -181,6 +227,14 @@ class GoodsController extends \yii\web\Controller
     //上传图片到七牛云and文本编辑器
     public function actions() {
         return [
+            'upload' => [
+                'class' => 'kucha\ueditor\UEditorAction',
+                'config' => [
+                    "imageUrlPrefix"  => "http://admin.yii2shop.com",//图片访问路径前缀
+                    "imagePathFormat" => "/upload/{yyyy}{mm}{dd}/{time}{rand:6}" ,//上传保存路径
+                    "imageRoot" => \Yii::getAlias("@webroot"),
+                ],
+            ],
             's-upload' => [
                 'class' => UploadAction::className(),
                 'basePath' => '@webroot/upload',
@@ -217,17 +271,24 @@ class GoodsController extends \yii\web\Controller
                 'afterValidate' => function (UploadAction $action) {},
                 'beforeSave' => function (UploadAction $action) {},
                 'afterSave' => function (UploadAction $action) {
-                    //$action->output['fileUrl'] = $action->getWebUrl();//输出文件的相对路径
+                    $goods_id = \Yii::$app->request->post('goods_id');
+                    if($goods_id){
+                        $model = new GoodsGallery();
+                        $model->goods_id = $goods_id;
+                        $model->path = $action->getWebUrl();
+                        $model->save();
+                        $action->output['fileUrl'] = $model->path;
+                        $action->output['id'] = $model->id;
+                    }else{
+                        $action->output['fileUrl'] = $action->getWebUrl();//输出文件的相对路径
+                    }
+
+
+
 //                    $action->getFilename(); // "image/yyyymmddtimerand.jpg"
 //                    $action->getWebUrl(); //  "baseUrl + filename, /upload/image/yyyymmddtimerand.jpg"
 //                    $action->getSavePath(); // "/var/www/htdocs/upload/image/yyyymmddtimerand.jpg"
-                    //将图片上传到七牛云
-                    $qiniu = new Qiniu(\Yii::$app->params['qiniu']);
-                    $qiniu->uploadFile(
-                        $action->getSavePath(), $action->getWebUrl()
-                    );
-                    $url = $qiniu->getLink($action->getWebUrl());
-                    $action->output['fileUrl']  = $url;
+
                 },
             ],
             //文本编辑器

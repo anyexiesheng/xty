@@ -14,6 +14,7 @@ use Yii;
  * @property integer $sort
  * @property integer $status
  */
+
 class Brand extends \yii\db\ActiveRecord
 {
 //    public $filelogo;//用一个属性来保存上传文件
