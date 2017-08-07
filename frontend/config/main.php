@@ -15,8 +15,11 @@ return [
         'request' => [
             'csrfParam' => '_csrf-frontend',
         ],
+        //默认路由
+        'defaultRoute'=>'goods/category-goods',
         'user' => [
-            'identityClass' => 'common\models\User',
+            'loginUrl'=>['member/login'],
+            'identityClass' => 'frontend\models\Member',
             'enableAutoLogin' => true,
             'identityCookie' => ['name' => '_identity-frontend', 'httpOnly' => true],
         ],
@@ -44,6 +47,13 @@ return [
             'rules' => [
             ],
         ],
+        'sms'=>[
+            'class'=>\frontend\components\AliyunSms::className(),
+            'accessKeyId'=>'LTAIruYIqy1lWmZ3',
+            'accessKeySecret'=>'9abinkzPCypamgSuDzi7ciQMPWlmiY',
+            'signName'=>'正品火锅',
+            'templateCode'=>'SMS_80185053'
+        ]
 
     ],
     'params' => $params,

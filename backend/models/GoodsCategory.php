@@ -93,4 +93,12 @@ class GoodsCategory extends \yii\db\ActiveRecord
         $nodes[] = ['id'=>0,'parent_id'=>0,'name'=>'顶级分类','open'=>1];
         return $nodes;
     }
+    //上级分类和下级分类建立一对多关系
+    public function getChildren(){
+        return $this->hasMany(GoodsCategory::className(),['parent_id'=>'id']);
+    }
+    //上级分类和下级分类建立一对多关系
+    public function getChild(){
+        return $this->hasMany(GoodsCategory::className(),['parent_id'=>'id']);
+    }
 }

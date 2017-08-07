@@ -1,6 +1,7 @@
 <?php
 
 namespace backend\controllers;
+use backend\filters\RbacFilter;
 use backend\models\GoodsCategory;
 use yii\db\Exception;
 use yii\web\HttpException;
@@ -126,5 +127,13 @@ class GoodsCategoryController extends \yii\web\Controller
         //将数据传入页面并显示页面
         return $this->render('index',['models'=>$models,'pager'=>$pager]);
     }
-
+    public function behaviors()
+    {
+        return [
+            'rbac'=>[
+                'class'=>RbacFilter::className(),
+                'only'=>['index','add','edit','delete'],
+            ]
+        ];
+    }
 }

@@ -3,6 +3,7 @@ $form=\yii\bootstrap\ActiveForm::begin();
 echo $form->field($model,'email');
 echo $form->field($model,'username');
 echo $form->field($model,'password')->passwordInput();
+echo $form->field($model,'role',['inline'=>1])->checkboxList(\yii\helpers\ArrayHelper::map(Yii::$app->authManager->getRoles(),'name','name'));
 //验证码
 echo $form->field($model,'code')->widget(\yii\captcha\Captcha::className(),
     ['captchaAction'=>'admin/captcha',

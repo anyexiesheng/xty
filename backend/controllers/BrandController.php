@@ -1,6 +1,7 @@
 <?php
 
 namespace backend\controllers;
+use backend\filters\RbacFilter;
 use yii\data\Pagination;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
@@ -198,5 +199,13 @@ class BrandController extends \yii\web\Controller
         return $this->redirect(['brand/back']);
     }
 //回收站#############################################################
-
+    public function behaviors()
+    {
+        return [
+            'rbac'=>[
+                'class'=>RbacFilter::className(),
+                'only'=>['index','add','edit','delete','back','recover','clean'],
+            ]
+        ];
+    }
 }

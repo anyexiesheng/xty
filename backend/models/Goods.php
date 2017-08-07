@@ -99,7 +99,7 @@ class Goods extends ActiveRecord
             [['is_on_sale'],'required'],
             [['goods_category_id', 'brand_id', 'stock', 'is_on_sale', 'status', 'sort', 'create_time', 'view_times'], 'integer'],
             [['market_price', 'shop_price'], 'number'],
-            [['name', 'sn'], 'string', 'max' => 20],
+            [['name', 'sn'], 'string', 'max' => 50,'message'=>'{attribute}不能超过50字'],
             [['logo'], 'string', 'max' => 255],
         ];
     }

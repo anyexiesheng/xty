@@ -35,18 +35,43 @@ AppAsset::register($this);
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
-    $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
-        ['label' => '修改密码', 'url' => ['admin/userupdate']],
-
-    ];
+    $menuItems=[];
+    $models=\backend\models\Menu::find()->where(['=','prent_id',0])->all();
+    foreach ($models as $model){
+        $items=[];
+        foreach ($model->children as $child){
+                    //判断该用户是否有菜单权限
+                if(Yii::$app->user->can($child->url)){
+                    $items[]=['label' => $child->name, 'url' => [$child->url]];
+                }
+            }
+            //没有子菜单时不显示一级菜单
+            if(!empty($items)){
+                $menuItems[]=['label' =>$model->name,'items' => $items];
+            }
+        }
     if (Yii::$app->user->isGuest) {
         $menuItems[] = ['label' => 'Login', 'url' => ['/admin/login']];
     } else {
-        $menuItems[] = '<li>'
+
+//        $menuItems= [
+//           ['label' => '修改密码', 'url' => ['admin/userupdate']],
+//        ];
+        $menuItems[]=['label' => '个人信息', 'items' => [
+            ['label' => '修改密码', 'url' => ['admin/userupdate']],
+            '<li>'
             . Html::beginForm(['/admin/logout'], 'post')
             . Html::submitButton(
                 'Logout (' . Yii::$app->user->identity->username . ')',
+                ['class' => 'btn btn-link logout']
+            )
+            . Html::endForm()
+            . '</li>'
+            ]];
+        $menuItems[] ='<li>'
+            . Html::beginForm(['/admin/logout'], 'post')
+            . Html::submitButton(
+                '注销 (' . Yii::$app->user->identity->username . ')',
                 ['class' => 'btn btn-link logout']
             )
             . Html::endForm()

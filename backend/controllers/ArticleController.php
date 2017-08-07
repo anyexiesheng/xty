@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use backend\filters\RbacFilter;
 use backend\models\AricleDetail;
 use backend\models\Article;
 use yii\web\NotFoundHttpException;
@@ -185,4 +186,13 @@ class ArticleController extends \yii\web\Controller
         ]
     ];
 }
+    public function behaviors()
+    {
+        return [
+            'rbac'=>[
+                'class'=>RbacFilter::className(),
+                'only'=>['index','add','edit','delete','back','recover','clean'],
+            ]
+        ];
+    }
 }

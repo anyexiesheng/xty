@@ -15,7 +15,7 @@ class m170722_070327_create_goods_table extends Migration
         $this->createTable('goods', [
             'id' => $this->primaryKey(),
 //            name	varchar(20)	商品名称
-            'name'=>$this->string(20)->comment('商品名称'),
+            'name'=>$this->string(50)->comment('商品名称'),
 //            sn	varchar(20)	货号
             'sn'=>$this->string(20)->comment('货号'),
 //            logo	varchar(255)	LOGO图片

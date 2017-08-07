@@ -2,12 +2,14 @@
 
 namespace backend\controllers;
 
+use backend\filters\RbacFilter;
 use backend\models\Admin;
 use backend\models\LoginForm;
 use backend\models\Userupdate;
 use yii\captcha\CaptchaAction;
 use yii\data\Pagination;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 
 class AdminController extends \yii\web\Controller
@@ -36,6 +38,18 @@ class AdminController extends \yii\web\Controller
         if($model->load(\Yii::$app->request->post()) && $model->validate() ){
             //验证数据
             $model->save(false);//默认情况下 保存是会调用validate方法  有验证码是，需要关闭验证
+            $authManager=\Yii::$app->authManager;
+
+            if(is_array($model->role)){
+                foreach ($model->role as $roleName){
+                    $role=$authManager->getRole($roleName);
+                    if($role){
+                        //var_dump($model->id);exit;
+                        $authManager->assign($role,$model->id);
+                    }
+
+                }
+            }
             //添加成功保存提示信息到session中并跳转首页
             \Yii::$app->session->setFlash('success','添加成功');
             return $this->redirect(['admin/index']);
@@ -45,17 +59,34 @@ class AdminController extends \yii\web\Controller
     //修改一条管理员信息
     public function actionEdit($id){
         $model =Admin::findOne(['id'=>$id]);
+        $authManager=\Yii::$app->authManager;
         if($model->load(\Yii::$app->request->post()) && $model->validate() ){
             //验证数据
             $model->save(false);//默认情况下 保存是会调用validate方法  有验证码是，需要关闭验证
+            //全部取消关联
+            $authManager->revokeAll($id);
+            if(is_array($model->role)){
+                foreach ($model->role as $roleName){
+                    $role=$authManager->getRole($roleName);
+                    if($role){
+                        //var_dump($model->id);exit;
+                        $authManager->assign($role,$model->id);
+                    }
+
+                }
+            }
             //添加成功保存提示信息到session中并跳转首页
             \Yii::$app->session->setFlash('info','修改成功');
             return $this->redirect(['admin/index']);
         }
+        //获取角色
+        $roles = $authManager->getAssignments($id);
+        //var_dump($roles);exit;
+        $model->role = ArrayHelper::map($roles,'roleName','roleName');
         return $this->render('add', ['model' => $model]);
     }
     //禁用一位用户
-    public function actionDelete($id){
+    public function actionDelete($id ){
         //根据id查询出一条信息  存在就修改状态为禁用 不存在则抛出一个错误提示
         $model=Admin::findOne($id);
         if($model==null){
@@ -87,9 +118,10 @@ class AdminController extends \yii\web\Controller
 
 
         if($model->load(\Yii::$app->request->post()) && $model->validate() && $model->update()){
-            //登录成功并把提示信息保存到session中并跳转首页
-            \Yii::$app-> session->setFlash('info','密码修改成功');
-            return $this->redirect(['admin/logout']);
+            //修改密码后退出登录并跳转登录页面 提示信息保存到session中并跳转首页
+            \Yii::$app->user->logout();
+            \Yii::$app->session->setFlash('info','密码修改成功请重新登录');
+            return $this->redirect(['admin/login']);
         }
         return $this->render('userupdate',['model'=>$model]);
     }
@@ -116,31 +148,10 @@ class AdminController extends \yii\web\Controller
     public function behaviors()
     {
         return [
-            'ACF'=>[
-                'class'=>AccessControl::className(),
-                'only'=>['add','delete','index','edit'],//哪些操作需要使用该过滤器
-                'rules'=>[
-                    [
-                        'allow'=>true,//是否允许
-                        'actions'=>['add','delete','edit','index'],//指定操作
-                        'roles'=>['@'],//指定角色 ?表示未认证用户(未登录) @表示已认证用户(已登录)
-                    ],
-                    [
-                        'allow'=>true,
-                        'actions'=>['index','add'],
-                        //'roles'=>['?','@']
-//                        'matchCallback'=>function(){
-//                            //return (!\Yii::$app->user->isGuest && \Yii::$app->user->identity->username=='admin');
-//                            return !(date('d')%2);
-//                        }
-                    ],
-                    //其他均禁止访问
-                ]
-            ]
-            /*'rbac'=>[
+            'rbac'=>[
                 'class'=>RbacFilter::className(),
-                'only'=>['add-article','del-article','view-article'],
-            ]*/
+                'only'=>['index','add','edit','delete'],
+            ]
         ];
     }
 }

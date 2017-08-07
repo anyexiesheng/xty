@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use backend\filters\RbacFilter;
 use backend\models\Goods;
 use backend\models\GoodsDayCount;
 use backend\models\GoodsGallery;
@@ -302,5 +303,14 @@ class GoodsController extends \yii\web\Controller
             ]
         ];
 
+    }
+    public function behaviors()
+    {
+        return [
+            'rbac'=>[
+                'class'=>RbacFilter::className(),
+                'only'=>['index','add','edit','delete','back','recover','clean','content','gallery','del-gallery'],
+            ]
+        ];
     }
 }

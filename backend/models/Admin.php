@@ -24,7 +24,7 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
 {
     public $code;
     public $password;
-
+    public $role=[];
     const SCENARIO_ADD="add";
 
     /**
@@ -45,6 +45,7 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
             [['username','email'],'unique','message'=>'该{attribute}已存在'],
             ['password','string'],
             ['email','email'],
+            ['role','safe'],
             ['password','required','on'=>self::SCENARIO_ADD],
             //验证码验证规则
             ['code', 'captcha', 'captchaAction' => 'admin/captcha','message'=>'验证码错误'],
@@ -60,6 +61,7 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
             'username' => '用户名',
             'password' => '密码',
             'email' => '邮箱',
+            'role'=>'角色'
         ];
     }
     //save之前要执行的操作  必须返回true，否则save（）方法不会执行

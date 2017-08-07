@@ -1,6 +1,7 @@
 <?php
 
 namespace backend\controllers;
+use backend\filters\RbacFilter;
 use yii\data\Pagination;
 use backend\models\ArticleCategory;
 use yii\web\NotFoundHttpException;
@@ -146,6 +147,15 @@ class ArticleCategoryController extends \yii\web\Controller
 //                    "imagePathFormat" => "/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}" ,//上传保存路径
 //                "imageRoot" => Yii::getAlias("@webroot"),
 //            ],
+            ]
+        ];
+    }
+    public function behaviors()
+    {
+        return [
+            'rbac'=>[
+                'class'=>RbacFilter::className(),
+                'only'=>['index','add','edit','delete','back','recover','clean'],
             ]
         ];
     }

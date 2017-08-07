@@ -6,4 +6,9 @@ return [
             'class' => 'yii\caching\FileCache',
         ],
     ],
+    'components'=>[
+        'authManager'=>[
+            'class'=>\yii\rbac\DbManager::className(),
+        ]
+    ]
 ];
