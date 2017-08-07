@@ -14,7 +14,11 @@ class GoodsController extends Controller
     //获取商品分类
     public function actionGoodsCategory(){
         $models=GoodsCategory::find()->where(['parent_id'=>0])->all();
-        return $this->render('index',['models'=>$models]);
+//        return $this->render('index',['models'=>$models]);
+        $contents=$this->render('index',['models'=>$models]);
+        file_put_contents('index.html',$contents);
+
+
     }
     //获取商品详情
     public function actionContent($id){

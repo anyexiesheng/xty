@@ -67,7 +67,7 @@ class MemberController extends \yii\web\Controller
             }
             //登录成功并把提示信息保存到session中并跳转首页
             \Yii::$app-> session->setFlash('success','登录成功');
-            return $this->redirect(['member/index']);
+            return $this->redirect(['/index.html']);
         }
         //展示登录页面
         return $this->render('login',['model'=>$model]);
@@ -151,14 +151,14 @@ class MemberController extends \yii\web\Controller
     public function actionLogout(){
         \Yii::$app->user->logout();
         //注销后跳转首页
-        return $this->redirect(['goods/goods-category']);
+        return $this->redirect(['/index.html']);
     }
     public function actionCheck(){
         $model=\Yii::$app->user->identity['id'];
         var_dump(\Yii::$app->user->isGuest.$model);
     }
     public function actionChecks(){
-        \Yii::$app->user->logout();
-        var_dump(\Yii::$app->session->offsetUnset('code_'.'17313067793'));
+        $isGuest=\Yii::$app->user->isGuest;
+        return Json::encode(['isGust'=>$isGuest,'identity'=>\Yii::$app->user->identity]);
     }
 }
