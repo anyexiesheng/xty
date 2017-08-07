@@ -18,7 +18,7 @@
 </head>
 <body>
 		<!-- 顶部导航 start -->
-        <?php require '/public/header.html'?>
+        <?php require './public/header.html'?>
 	<!-- 顶部导航 end -->
 	
 	<div style="clear:both;"></div>
